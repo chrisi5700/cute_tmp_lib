@@ -164,7 +164,7 @@ namespace tmp
 		struct remove_n_impl;
 
 
-		template<class T, std::size_t N, class... Tail>
+		template<class T, std::size_t N, class... Tail> requires (N != 0)
 		struct remove_n_impl<T, N, type_bag<T, Tail...>>
 		{
 			using type = typename remove_n_impl<T, N-1, type_bag<Tail...>>::type;
@@ -465,6 +465,35 @@ namespace tmp
 		{};
 
 
+		template<class Bag1, class Bag2>
+		struct bag_difference_impl;
+
+
+		// Head is contained in bag1 so its removed
+		template<class... Args, class Head, class... Tail>
+		struct bag_difference_impl<type_bag<Args...>, type_bag<Head, Tail...>>
+		{
+		private:
+			using removed_head = remove_n_impl<Head, 1, type_bag<Args...>>::type;
+		public:
+			using type = bag_difference_impl<removed_head, type_bag<Tail...>>::type;
+		};
+
+
+		// Head isnt contained in bag1 so its just ignored
+		template<class... Args, class Head, class... Tail> requires (not tmp::contains<Head, type_bag<Args...>>::value)
+		struct bag_difference_impl<type_bag<Args...>, type_bag<Head, Tail...>>
+		{
+			using type = bag_difference_impl<type_bag<Args...>, type_bag<Tail...>>::type;
+		};
+
+		template<class... Args>
+		struct bag_difference_impl<type_bag<Args...>, type_bag<>>
+		{
+			using type = type_bag<Args...>;
+		};
+
+
 
 	}
 
@@ -513,6 +542,8 @@ namespace tmp
 	template<class Bag1, class Bag2>
 	struct bag_eq : detail_type_bag::bag_eq_impl<Bag1, Bag2> {};
 
+	template<class Bag1, class Bag2>
+	struct bag_difference : detail_type_bag::bag_difference_impl<Bag1, Bag2> {};
 
 
 	// TODO Maybe sanitize the inputs of the user facing structs for example

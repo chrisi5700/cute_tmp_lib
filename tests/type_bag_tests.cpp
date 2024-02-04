@@ -177,6 +177,7 @@ void remove_n()
 {
 	using bag1 = tmp::type_bag<short, double, S, float>;
 	using bag2 = tmp::type_bag<float, short, double, S, float>;
+	using bag3 = tmp::type_bag<int, int, int>;
 
 	static_assert(tmp::bag_eq<tmp::type_bag<double, S, float>,
 							  typename tmp::remove_n<short, 1, bag1>::type>::value);
@@ -189,6 +190,8 @@ void remove_n()
 
 	static_assert(tmp::bag_eq<empty_bag,
 							  typename tmp::remove_n<float, 0, empty_bag>::type>::value);
+
+	static_assert(std::same_as<bag3, typename tmp::remove_n<int, 0, bag3>::type>);
 }
 
 
@@ -389,6 +392,36 @@ void merge_sort()
 	static_assert(std::same_as<tmp::merge_sort<size, bag2>::type, bag2_s>);
 
 	static_assert(std::same_as<tmp::merge_sort<size, empty_bag>::type, empty_bag>);
+
+}
+
+
+void bag_difference()
+{
+	using bag1 = tmp::type_bag<short, double, S, float>;
+	using bag2 = tmp::type_bag<short, float>;
+	using b1_m_b2 = tmp::type_bag<double, S>;
+
+	using bag3 = tmp::type_bag<int, float, float, int, char, float, double>;
+	using bag4 = tmp::type_bag<float, float, double, float>;
+	using b3_m_b4 = tmp::type_bag<int, int, char>;
+
+	using bag5 = tmp::type_bag<int, int, int, int>;
+	using bag6 = tmp::type_bag<int, int>;
+
+	using bag7 = tmp::type_bag<int, int, int, int>;
+	using bag8 = tmp::type_bag<float>;
+
+	static_assert(tmp::bag_eq<typename tmp::bag_difference<bag5, bag6>::type, bag6>::value);
+	static_assert(tmp::bag_eq<typename tmp::bag_difference<bag1, bag2>::type, b1_m_b2>::value);
+	static_assert(tmp::bag_eq<typename tmp::bag_difference<bag3, bag4>::type, b3_m_b4>::value);
+	static_assert(tmp::bag_eq<typename tmp::bag_difference<bag7, bag8>::type, bag7>::value);
+	static_assert(tmp::bag_eq<typename tmp::bag_difference<bag7, empty_bag>::type, bag7>::value);
+	static_assert(tmp::bag_eq<typename tmp::bag_difference<empty_bag , empty_bag>::type, empty_bag>::value);
+	static_assert(tmp::bag_eq<typename tmp::bag_difference<empty_bag , bag7>::type, empty_bag>::value);
+
+
+
 
 
 }
